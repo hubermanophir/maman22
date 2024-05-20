@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "set.h"
 #define INITIAL_CAPACITY 5
 #define UNDEFINED_SET "NULL"
@@ -19,7 +20,6 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
     char *possible_set_names[] = {"SETA", "SETB", "SETC", "SETD", "SETE", "SETF"};
     int possible_set_names_length = 6;
     int set_index;
-    char num[3];
     scanf("%s", word);
 
     if (!strcmp(word, "stop"))
@@ -54,28 +54,34 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 }
 
 /*add check for , to be equal to the number count*/
-void read_set(set *s)
+
+void get_numbers(int *numbers, int *size)
 {
-    int size = INITIAL_CAPACITY * sizeof(int);
-    int *numbers = malloc(size);
     char num[3];
     int i = 0;
     int input_number_count = 0;
     char c;
-    int actual_number = -2;
-    while (actual_number != -1 && c != EOF)
+    int actual_number;
+    int j;
+    while (c != '\n' && c != EOF)
     {
         c = getchar();
         if (c == ',')
         {
+            actual_number = atoi(num);
+            /*Negative number in the middle*/
 
-            actual_number = atoi(&num);
+            if (actual_number < 0)
+            {
+                printf("Invalid set member – value out of range\n");
+            }
+
             memset(num, '\0', sizeof(num));
             i = 0;
-            if (input_number_count >= size / sizeof(int))
+            if (input_number_count >= *size / sizeof(int))
             {
-                size *= 2;
-                numbers = realloc(numbers, size);
+                *size *= 2;
+                numbers = realloc(numbers, *size);
             }
             numbers[input_number_count++] = actual_number;
             continue;
@@ -86,14 +92,28 @@ void read_set(set *s)
         }
         num[i++] = c;
     }
+
+    actual_number = atoi(num);
+
+    /*Check if last item is -1*/
+    if (actual_number != -1)
+    {
+        printf("List of set members is not terminated correctly\n");
+    }
+
     printf("Numbers: ");
-    int j;
     for (j = 0; j < input_number_count; j++)
     {
         printf("%d ", numbers[j]);
     }
     printf("\n");
-    free(numbers);
+}
+
+void read_set(set *s)
+{
+    int size = INITIAL_CAPACITY * sizeof(int);
+    int *numbers = malloc(size);
+    get_numbers(numbers, &size);
 }
 
 int get_set_index(char *name, char **possible_set_names, int len)
@@ -144,7 +164,7 @@ set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, s
         return SETF;
     default:
         printf("Invalid set number\n");
-        return UNDEFINED_SET;
+        return NULL;
     }
 }
 
