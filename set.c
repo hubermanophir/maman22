@@ -54,7 +54,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 }
 
 /*add check for , to be equal to the number count*/
-
+/*TODO: Add validation if its a string ,abc, instead of number*/
 void get_numbers(int *numbers, int *size)
 {
     char num[3];
@@ -82,6 +82,10 @@ void get_numbers(int *numbers, int *size)
             {
                 *size *= 2;
                 numbers = realloc(numbers, *size);
+                if (numbers == NULL)
+                {
+                    exit(0);
+                }
             }
             numbers[input_number_count++] = actual_number;
             continue;
@@ -113,7 +117,13 @@ void read_set(set *s)
 {
     int size = INITIAL_CAPACITY * sizeof(int);
     int *numbers = malloc(size);
+    if (numbers == NULL)
+    {
+        exit(0);
+    }
+
     get_numbers(numbers, &size);
+    free(numbers);
 }
 
 int get_set_index(char *name, char **possible_set_names, int len)
