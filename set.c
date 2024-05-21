@@ -14,6 +14,7 @@ set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, s
 void print_set(set *s);
 void get_multiple_sets(char **possible_set_names, int len, int *indexes);
 int process_three_sets(int command_code, set *s1, set *s2, set *s3);
+void skip_line();
 
 int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 {
@@ -34,12 +35,14 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 
     if (check_illegal_comma_command(word))
     {
+        skip_line();
         return 0;
     }
     command_code = get_command(word);
     if (command_code == -1)
     {
         printf("Undefined command name\n");
+        skip_line();
         return 0;
     }
 
@@ -51,6 +54,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
         if (s1 == NULL)
         {
             printf("Undefined set name\n");
+            skip_line();
             return 0;
         }
         read_set(s1);
@@ -61,6 +65,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
         if (s1 == NULL)
         {
             printf("Undefined set name\n");
+            skip_line();
             return 0;
         }
         print_set(s1);
@@ -91,7 +96,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 
 int get_numbers(int *numbers, int *size)
 {
-    char num[3];
+    char num[4];
     int i = 0;
     int input_number_count = 0;
     char c;
@@ -113,6 +118,7 @@ int get_numbers(int *numbers, int *size)
             if (actual_number < 0 || actual_number > 127)
             {
                 printf("Invalid set member – value out of range\n");
+                skip_line();
                 return 0;
             }
 
@@ -134,9 +140,10 @@ int get_numbers(int *numbers, int *size)
         {
             continue;
         }
-        if (c > '9')
+        if (c > '9' || c == '.')
         {
             printf("Invalid set member — not an integer\n");
+            skip_line();
             return 0;
         }
 
@@ -379,4 +386,11 @@ void get_multiple_sets(char **possible_set_names, int len, int *indexes)
     {
         indexes[i] = get_single_set(possible_set_names, len);
     }
+}
+
+void skip_line()
+{
+    char c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
 }

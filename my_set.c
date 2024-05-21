@@ -12,12 +12,10 @@ int main()
     reset_set(&SETE);
     reset_set(&SETF);
 
-
-while(1){
-
-    get_line(&SETA, &SETB, &SETC, &SETD, &SETE, &SETF);
-
-}
+    while (1)
+    {
+        get_line(&SETA, &SETB, &SETC, &SETD, &SETE, &SETF);
+    }
 
     return 0;
 }

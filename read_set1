@@ -1,4 +1,0 @@
-read_set SETB, 1,2,3,4,32,4,5, -1
-print_set SETB
-read_set SETA, 1,2,3,4,5, -1
-stop

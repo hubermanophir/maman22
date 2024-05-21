@@ -1,0 +1,2 @@
+read_set SETA, 45, 2, xyz, 34, -1
+stop

@@ -1,0 +1,2 @@
+read_set setA, 3, 6, 5, 4, 4, -l
+stop
