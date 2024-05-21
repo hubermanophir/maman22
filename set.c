@@ -55,7 +55,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 
 /*add check for , to be equal to the number count*/
 /*TODO: Add validation if its a string ,abc, instead of number*/
-void get_numbers(int *numbers, int *size)
+int get_numbers(int *numbers, int *size)
 {
     char num[3];
     int i = 0;
@@ -68,9 +68,14 @@ void get_numbers(int *numbers, int *size)
         c = getchar();
         if (c == ',')
         {
+            if (strlen(num) == 0)
+            {
+                printf("Multiple consecutive commas\n");
+                continue;
+            }
+
             actual_number = atoi(num);
             /*Negative number in the middle*/
-
             if (actual_number < 0)
             {
                 printf("Invalid set member – value out of range\n");
@@ -111,18 +116,42 @@ void get_numbers(int *numbers, int *size)
         printf("%d ", numbers[j]);
     }
     printf("\n");
+    return input_number_count;
 }
+
+void reset_set(set *s)
+{
+    int i;
+    for (i = 0; i < 16; i++)
+    {
+        (*s)[i] = 0;
+    }
+}
+
+void add_number_to_set(set *s, int number)
+{
+    int index = (number + 1) / 8;
+    int bit = 7 - number % 8;
+    (*s)[index] |= 1 << bit;
+};
 
 void read_set(set *s)
 {
     int size = INITIAL_CAPACITY * sizeof(int);
     int *numbers = malloc(size);
+    int numbers_count;
+
     if (numbers == NULL)
     {
         exit(0);
     }
 
-    get_numbers(numbers, &size);
+    numbers_count = get_numbers(numbers, &size);
+    reset_set(s);
+    add_number_to_set(s, numbers[1]);
+
+    printf("%d\n", (*s)[0]);
+
     free(numbers);
 }
 
