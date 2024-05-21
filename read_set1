@@ -1,2 +1,5 @@
-read_set     SETD,   1,5,12,34,1, -1
-print_set SETD
+read_set SETA, 1,2,5, -1
+read_set SETB, 1,2,3,   4,6, -1
+symdiff_set SETA, SETB, SETC
+print_set SETC
+stop

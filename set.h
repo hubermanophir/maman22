@@ -14,6 +14,8 @@ void symdiff_set(set *s1, set *s2, set *s3);
 
 int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF);
 
+void reset_set(set *s);
+
 #define READ_SET 1
 #define PRINT_SET 2
 #define UNION_SET 3

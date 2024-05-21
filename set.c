@@ -8,19 +8,22 @@
 #define UNDEFINED_SET "NULL"
 
 int get_command(char *command);
-int process_three_sets(int command_code);
 int check_illegal_comma_command(char *command);
 int get_single_set(char **possible_set_names, int len);
 set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF);
 void print_set(set *s);
+void get_multiple_sets(char **possible_set_names, int len, int *indexes);
+int process_three_sets(int command_code, set *s1, set *s2, set *s3);
 
 int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 {
-    char word[20];
+    char word[100];
     int command_code = -1;
     char *possible_set_names[] = {"SETA", "SETB", "SETC", "SETD", "SETE", "SETF"};
     int possible_set_names_length = 6;
     int set_index;
+    int set_index_array[3];
+
     set *s1, *s2, *s3;
     scanf("%s", word);
 
@@ -37,7 +40,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
     command_code = get_command(word);
     if (command_code == -1)
     {
-        printf("Invalid command\n");
+        printf("Undefined command name\n");
         return 0;
     }
 
@@ -62,6 +65,18 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
         print_set(s1);
         return 1;
     default:
+        get_multiple_sets(possible_set_names, possible_set_names_length, set_index_array);
+        s1 = get_set_by_number(set_index_array[0], SETA, SETB, SETC, SETD, SETE, SETF);
+        s2 = get_set_by_number(set_index_array[1], SETA, SETB, SETC, SETD, SETE, SETF);
+        s3 = get_set_by_number(set_index_array[2], SETA, SETB, SETC, SETD, SETE, SETF);
+        if (s1 == NULL || s2 == NULL || s3 == NULL)
+        {
+            printf("Missing parameter\n");
+            return 0;
+        }
+
+        process_three_sets(command_code, s1, s2, s3);
+
         return 1;
     }
 }
@@ -87,10 +102,10 @@ int get_numbers(int *numbers, int *size)
 
             actual_number = atoi(num);
             /*Negative number in the middle*/
-            if (actual_number < 0)
+            if (actual_number < 0 || actual_number > 127)
             {
                 printf("Invalid set member – value out of range\n");
-                break;
+                return 0;
             }
 
             memset(num, '\0', sizeof(num));
@@ -111,15 +126,21 @@ int get_numbers(int *numbers, int *size)
         {
             continue;
         }
+        if (c > '9')
+        {
+            printf("Invalid set member — not an integer\n");
+            return 0;
+        }
+
         num[i++] = c;
     }
 
     actual_number = atoi(num);
-
     /*Check if last item is -1*/
     if (actual_number != -1)
     {
         printf("List of set members is not terminated correctly\n");
+        return 0;
     }
     return input_number_count;
 }
@@ -228,7 +249,7 @@ set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, s
     case NUM_SETF:
         return SETF;
     default:
-        printf("Invalid set number\n");
+        printf("Undefined set name\n");
         return NULL;
     }
 }
@@ -278,4 +299,73 @@ int check_illegal_comma_command(char *command)
         }
     }
     return 0;
+}
+
+void union_set(set *s1, set *s2, set *s3)
+{
+    int i;
+    for (i = 0; i < 16; i++)
+    {
+        (*s3)[i] = (*s1)[i] | (*s2)[i];
+    }
+}
+
+void intersect_set(set *s1, set *s2, set *s3)
+{
+    int i;
+    for (i = 0; i < 16; i++)
+    {
+        (*s3)[i] = (*s1)[i] & (*s2)[i];
+    }
+}
+
+void sub_set(set *s1, set *s2, set *s3)
+{
+    int i;
+    for (i = 0; i < 16; i++)
+    {
+        (*s3)[i] = (*s1)[i] & ~(*s2)[i];
+    }
+}
+
+void symdiff_set(set *s1, set *s2, set *s3)
+{
+    int i;
+    for (i = 0; i < 16; i++)
+    {
+        (*s3)[i] = (*s1)[i] ^ (*s2)[i];
+    }
+}
+
+int process_three_sets(int command_code, set *s1, set *s2, set *s3)
+{
+    printf("Result: \n");
+    switch (command_code)
+    {
+    case UNION_SET:
+        union_set(s1, s2, s3);
+        return 1;
+    case INTERSECT_SET:
+        intersect_set(s1, s2, s3);
+        return 1;
+    case SUB_SET:
+        sub_set(s1, s2, s3);
+        return 1;
+    case SYMDIFF_SET:
+        symdiff_set(s1, s2, s3);
+        return 1;
+    default:
+        printf("Undefined command\n");
+        return 1;
+
+    }
+}
+
+void get_multiple_sets(char **possible_set_names, int len, int *indexes)
+{
+    int i;
+    for (i = 0; i < 3; i++)
+    {
+        indexes[i] = get_single_set(possible_set_names, len);
+    }
 }
