@@ -304,7 +304,6 @@ int check_illegal_comma_command(char *command)
     int command_length = strlen(command);
     for (i = 0; i < command_length; i++)
     {
-        printf("%c\n", command[i]);
         if (command[i] == ',')
         {
             printf("Illegal comma\n");
@@ -375,7 +374,7 @@ int process_three_sets(int command_code, set *s1, set *s2, set *s3)
 
 void get_multiple_sets(char **possible_set_names, int len, int *indexes)
 {
-    int i, set_index;
+    int i;
     for (i = 0; i < 3; i++)
     {
         indexes[i] = get_single_set(possible_set_names, len);
