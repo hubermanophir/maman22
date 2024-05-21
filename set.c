@@ -12,6 +12,7 @@ int process_three_sets(int command_code);
 int check_illegal_comma_command(char *command);
 int get_single_set(char **possible_set_names, int len);
 set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF);
+void print_set(set *s);
 
 int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 {
@@ -20,12 +21,13 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
     char *possible_set_names[] = {"SETA", "SETB", "SETC", "SETD", "SETE", "SETF"};
     int possible_set_names_length = 6;
     int set_index;
+    set *s1, *s2, *s3;
     scanf("%s", word);
 
     if (!strcmp(word, "stop"))
     {
         printf("Exiting\n");
-        return 1;
+        exit(0);
     }
 
     if (check_illegal_comma_command(word))
@@ -43,18 +45,27 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
     {
     case READ_SET:
         set_index = get_single_set(possible_set_names, possible_set_names_length);
-        read_set(get_set_by_number(set_index, SETA, SETB, SETC, SETD, SETE, SETF));
+        s1 = get_set_by_number(set_index, SETA, SETB, SETC, SETD, SETE, SETF);
+        if (s1 == NULL)
+        {
+            return 0;
+        }
+        read_set(s1);
         return 1;
     case PRINT_SET:
         set_index = get_single_set(possible_set_names, possible_set_names_length);
+        s1 = get_set_by_number(set_index, SETA, SETB, SETC, SETD, SETE, SETF);
+        if (s1 == NULL)
+        {
+            return 0;
+        }
+        print_set(s1);
         return 1;
     default:
         return 1;
     }
 }
 
-/*add check for , to be equal to the number count*/
-/*TODO: Add validation if its a string ,abc, instead of number*/
 int get_numbers(int *numbers, int *size)
 {
     char num[3];
@@ -62,12 +73,12 @@ int get_numbers(int *numbers, int *size)
     int input_number_count = 0;
     char c;
     int actual_number;
-    int j;
     while (c != '\n' && c != EOF)
     {
         c = getchar();
         if (c == ',')
         {
+            i = 0;
             if (strlen(num) == 0)
             {
                 printf("Multiple consecutive commas\n");
@@ -79,10 +90,11 @@ int get_numbers(int *numbers, int *size)
             if (actual_number < 0)
             {
                 printf("Invalid set member – value out of range\n");
+                break;
             }
 
             memset(num, '\0', sizeof(num));
-            i = 0;
+
             if (input_number_count >= *size / sizeof(int))
             {
                 *size *= 2;
@@ -95,7 +107,7 @@ int get_numbers(int *numbers, int *size)
             numbers[input_number_count++] = actual_number;
             continue;
         }
-        if (c == ' ')
+        if (c == ' ' || c == '\n')
         {
             continue;
         }
@@ -109,13 +121,6 @@ int get_numbers(int *numbers, int *size)
     {
         printf("List of set members is not terminated correctly\n");
     }
-
-    printf("Numbers: ");
-    for (j = 0; j < input_number_count; j++)
-    {
-        printf("%d ", numbers[j]);
-    }
-    printf("\n");
     return input_number_count;
 }
 
@@ -133,7 +138,7 @@ void add_number_to_set(set *s, int number)
     int index = number / 8;
     int bit = 7 - number % 8;
     (*s)[index] |= 1 << bit;
-};
+}
 
 void add_numbers_to_set(set *s, int *numbers, int numbers_count)
 {
@@ -174,8 +179,6 @@ void read_set(set *s)
     numbers_count = get_numbers(numbers, &size);
     reset_set(s);
     add_numbers_to_set(s, numbers, numbers_count);
-    print_set(s);
-
     free(numbers);
 }
 
@@ -197,14 +200,13 @@ int get_single_set(char **possible_set_names, int len)
     char set_name[4];
     int i = 0;
     char c;
-    while ((c = getchar()) != EOF && c != ',')
+    while ((c = getchar()) != EOF && c != ',' && i < 4)
     {
-        if (c != ' ')
+        if (c != ' ' && c != '\n')
         {
             set_name[i++] = c;
         }
     }
-    printf("Set name: %s\n", set_name);
     i = get_set_index(set_name, possible_set_names, len);
     return i;
 }

@@ -4,6 +4,11 @@
 int main()
 {
     set SETA, SETB, SETC, SETD, SETE, SETF;
-    get_line(&SETA, &SETB, &SETC, &SETD, &SETE, &SETF);
+
+    while (1)
+    {
+        get_line(&SETA, &SETB, &SETC, &SETD, &SETE, &SETF);
+    }
+
     return 0;
 }
