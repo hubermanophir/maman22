@@ -29,8 +29,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
 
     if (!strcmp(word, "stop"))
     {
-        printf("Exiting\n");
-        exit(0);
+        exit(1);
     }
 
     if (check_illegal_comma_command(word))
@@ -51,6 +50,7 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
         s1 = get_set_by_number(set_index, SETA, SETB, SETC, SETD, SETE, SETF);
         if (s1 == NULL)
         {
+            printf("Undefined set name\n");
             return 0;
         }
         read_set(s1);
@@ -60,15 +60,23 @@ int get_line(set *SETA, set *SETB, set *SETC, set *SETD, set *SETE, set *SETF)
         s1 = get_set_by_number(set_index, SETA, SETB, SETC, SETD, SETE, SETF);
         if (s1 == NULL)
         {
+            printf("Undefined set name\n");
             return 0;
         }
         print_set(s1);
         return 1;
     default:
         get_multiple_sets(possible_set_names, possible_set_names_length, set_index_array);
+        if (set_index_array[0] == -1 || set_index_array[1] == -1 || set_index_array[2] == -1)
+        {
+            printf("Multiple consecutive commas\n");
+            return 0;
+        }
+
         s1 = get_set_by_number(set_index_array[0], SETA, SETB, SETC, SETD, SETE, SETF);
         s2 = get_set_by_number(set_index_array[1], SETA, SETB, SETC, SETD, SETE, SETF);
         s3 = get_set_by_number(set_index_array[2], SETA, SETB, SETC, SETD, SETE, SETF);
+
         if (s1 == NULL || s2 == NULL || s3 == NULL)
         {
             printf("Missing parameter\n");
@@ -228,6 +236,11 @@ int get_single_set(char **possible_set_names, int len)
             set_name[i++] = c;
         }
     }
+    if (i < 4)
+    {
+        return -1;
+    }
+
     i = get_set_index(set_name, possible_set_names, len);
     return i;
 }
@@ -249,7 +262,6 @@ set *get_set_by_number(int number, set *SETA, set *SETB, set *SETC, set *SETD, s
     case NUM_SETF:
         return SETF;
     default:
-        printf("Undefined set name\n");
         return NULL;
     }
 }
@@ -292,6 +304,7 @@ int check_illegal_comma_command(char *command)
     int command_length = strlen(command);
     for (i = 0; i < command_length; i++)
     {
+        printf("%c\n", command[i]);
         if (command[i] == ',')
         {
             printf("Illegal comma\n");
@@ -339,7 +352,7 @@ void symdiff_set(set *s1, set *s2, set *s3)
 
 int process_three_sets(int command_code, set *s1, set *s2, set *s3)
 {
-    printf("Result: \n");
+
     switch (command_code)
     {
     case UNION_SET:
@@ -357,13 +370,12 @@ int process_three_sets(int command_code, set *s1, set *s2, set *s3)
     default:
         printf("Undefined command\n");
         return 1;
-
     }
 }
 
 void get_multiple_sets(char **possible_set_names, int len, int *indexes)
 {
-    int i;
+    int i, set_index;
     for (i = 0; i < 3; i++)
     {
         indexes[i] = get_single_set(possible_set_names, len);
