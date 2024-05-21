@@ -130,10 +130,35 @@ void reset_set(set *s)
 
 void add_number_to_set(set *s, int number)
 {
-    int index = (number + 1) / 8;
+    int index = number / 8;
     int bit = 7 - number % 8;
     (*s)[index] |= 1 << bit;
 };
+
+void add_numbers_to_set(set *s, int *numbers, int numbers_count)
+{
+    int i;
+    for (i = 0; i < numbers_count; i++)
+    {
+        add_number_to_set(s, numbers[i]);
+    }
+}
+
+void print_set(set *s)
+{
+    int i, j;
+    for (i = 0; i < 16; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            if ((*s)[i] & (1 << (7 - j)))
+            {
+                printf("%d ", i * 8 + j);
+            }
+        }
+    }
+    printf("\n");
+}
 
 void read_set(set *s)
 {
@@ -148,9 +173,8 @@ void read_set(set *s)
 
     numbers_count = get_numbers(numbers, &size);
     reset_set(s);
-    add_number_to_set(s, numbers[1]);
-
-    printf("%d\n", (*s)[0]);
+    add_numbers_to_set(s, numbers, numbers_count);
+    print_set(s);
 
     free(numbers);
 }
